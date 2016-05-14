@@ -15,7 +15,12 @@ import {
 import Camera from 'react-native-camera';
 
 class CameraApp extends Component {
+  componentDidMount() {
+	  var interval = setInterval(() => {this.takePicture()}, 5000);
+  }
+  
   render() {
+	console.log("Render");
     return (
       <View style={styles.container}>
         <Camera ref={(cam) => {
@@ -25,7 +30,6 @@ class CameraApp extends Component {
         aspect={Camera.constants.Aspect.fill}
 		captureTarget={Camera.constants.CaptureTarget.memory}>
         </Camera>
-        <Text style={styles.capture} onPress={this.takePicture.bind(this)}>[CAPTURE]</Text>
       </View>
     );
   }
@@ -36,13 +40,16 @@ class CameraApp extends Component {
       .catch(err => console.error(err));
   }
 }
+
 function uploadFile(data) {
-	var formData = new FormData();
-	formData.append('data', data['data']);
-	
-	var xhr = new XMLHttpRequest();
-	xhr.open('POST', "http://localhost:5000/upload");
-	xhr.send(formData);
+	fetch("https://b5f3edbe.ngrok.io/camera", {
+	  method: 'POST',
+	  headers: {
+		'Accept': 'application/json',
+		'Content-Type': 'application/json',
+	  },
+	  body: data['data']
+	});
 }
 
 const styles = StyleSheet.create({

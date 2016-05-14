@@ -1,53 +1,55 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
+'use strict';
 
-import React, { Component } from 'react';
-import {
+var React = require('react-native');
+var Mapbox = require('react-native-mapbox-gl');
+var mapRef = 'OpenStreetMap';
+var {
   AppRegistry,
   StyleSheet,
+  View,
   Text,
-  View
-} from 'react-native';
+  StatusBar
+} = React;
 
-class AwesomeProject extends Component {
-  render() {
+var map = React.createClass({
+  mixins: [Mapbox.Mixin],
+  getInitialState() {
+    return {
+      center: {
+        latitude: 47.38,
+        longitude: 8.54
+      },
+      zoom: 13
+     };
+  },
+  render: function() {
+    StatusBar.setHidden(true);
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.ios.js
-        </Text>
-        <Text style={styles.instructions}>
-          Press Cmd+R to reload,{'\n'}
-          Cmd+D or shake for dev menu
-        </Text>
+        <Mapbox
+          style={styles.container}
+          direction={0}
+          rotateEnabled={true}
+          scrollEnabled={true}
+          zoomEnabled={true}
+          showsUserLocation={true}
+          ref={mapRef}
+          accessToken={'your-mapbox.com-access-token'}
+          styleURL={'https://raw.githubusercontent.com/osm2vectortiles/osm2vectortiles/gh-pages/styles/bright-v8.json'}
+          centerCoordinate={this.state.center}
+          zoomLevel={this.state.zoom}
+          logoIsHidden={true}
+          attributionButtonIsHidden={true}
+        />
       </View>
     );
   }
-}
+});
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+    flex: 1
+  }
 });
 
-AppRegistry.registerComponent('AwesomeProject', () => AwesomeProject);
+AppRegistry.registerComponent('map', () => map);

@@ -27,7 +27,7 @@ def scale(infile, size):
         im.save(out, "PNG")
         return out
     except IOError:
-        print "cannot create thumbnail for '%s'" % infile
+        print("cannot create thumbnail for '%s'" % infile)
 
 def free_spots(pixels):
     spots = []
@@ -51,8 +51,8 @@ def main():
     img2 = to_grayscale(imread(scaled2).astype(float))
 
     n_m, n_0, diff = compare_images(img1, img2)
-    print "Manhattan norm:", n_m, "/ per pixel:", n_m/img1.size
-    print "Zero norm:", n_0, "/ per pixel:", n_0*1.0/img1.size
+    print("Manhattan norm:", n_m, "/ per pixel:", n_m/img1.size)
+    print("Zero norm:", n_0, "/ per pixel:", n_0*1.0/img1.size)
 
     result = []
     for x, v1 in enumerate(diff.tolist()):
@@ -60,7 +60,7 @@ def main():
         for y, v2 in enumerate(v1):
             result[x].append(0 if v2 > 50 else 50)
 
-    print free_spots(result)
+    print(free_spots(result))
 
     scipy.misc.toimage(result, cmin=0.0, cmax=20.0).save('outfile.jpg')
 

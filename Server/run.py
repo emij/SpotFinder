@@ -100,7 +100,7 @@ def find_corners(filename):
     global bbox
 
     pxs = normalize(to_grayscale(imread(filename).astype(float)))
-    
+
     if not first_time:
         img_empty = Image.open("img/empty.png")
         width, height = img_empty.size

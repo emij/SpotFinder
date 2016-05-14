@@ -90,7 +90,7 @@ def hello_world():
     return 'Parkinson says: Hello!'
 
 @app.route('/camera/init', methods=['POST'])
-def upload():
+def camera_init():
     fp = open('img/empty.jpg', 'w')
     fp.write(base64.b64decode(request.data))
     fp.close()
@@ -98,7 +98,7 @@ def upload():
     return ''
 
 @app.route('/camera', methods=['POST'])
-def upload():
+def camera():
     fp = open('img/camera.jpg', 'w')
     fp.write(base64.b64decode(request.data))
     fp.close()

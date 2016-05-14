@@ -1,22 +1,38 @@
 from flask import Flask
 from PIL import Image
 
-import base64
+from flask import Response
+import json
+import sys
+import os
+import os.path
 
+import math
+import base64
+from functools import reduce
 from flask import request
 import scipy.misc
 from scipy.misc import imread
 from scipy.linalg import norm
 from scipy import sum, average
 
+bbox = ()
+first_time = True
 app = Flask(__name__)
 scale_size = (1024, 1024)
 
 parking_spots = [
-    [(524, 130), (660, 385)],
-    [(370, 130), (515, 385)],
-    [(230, 130), (260, 385)],
-    [(70, 130), (200, 385)]
+    [(3, 18), (39, 39)],
+    [(3, 48), (39, 69)],
+    [(3, 78), (39, 99)],
+    [(3, 108), (39, 129)],
+    [(3, 138), (39, 159)],
+    [(3, 168), (39, 189)],
+    [(3, 198), (39, 219)],
+    [(90, 35), (116, 80)],
+    [(90, 80), (116, 125)],
+    [(90, 125), (116, 170)],
+    [(90, 175), (116, 220)]
 ]
 
 def scale(infile, size):
@@ -44,8 +60,8 @@ def free_spots(pixels):
     return spots
 
 def main():
-    scaled1 = scale("img/empty.jpg", scale_size)
-    scaled2 = scale("img/car3.jpg", scale_size)
+    scaled1 = "img/empty.png.cropped.png" #, scale_size)
+    scaled2 = "img/camera.png.cropped.png" #, scale_size)
 
     img1 = to_grayscale(imread(scaled1).astype(float))
     img2 = to_grayscale(imread(scaled2).astype(float))
@@ -60,9 +76,8 @@ def main():
         for y, v2 in enumerate(v1):
             result[x].append(0 if v2 > 50 else 50)
 
-    print(free_spots(result))
-
-    scipy.misc.toimage(result, cmin=0.0, cmax=20.0).save('outfile.jpg')
+    scipy.misc.toimage(result, cmin=0.0, cmax=20.0).save('img/diff.png', 'PNG')
+    return free_spots(result)
 
 def compare_images(img1, img2):
     img1 = normalize(img1)
@@ -80,6 +95,62 @@ def to_grayscale(arr):
     else:
         return arr
 
+def find_corners(filename):
+    global first_time
+    global bbox
+
+    pxs = normalize(to_grayscale(imread(filename).astype(float)))
+    
+    if not first_time:
+        img_empty = Image.open("img/empty.png")
+        width, height = img_empty.size
+
+        img = scipy.misc.toimage(pxs)
+        img2 = img.crop(bbox)
+        img2.save(filename + ".cropped.png", "PNG")
+        return
+
+    res = [(), ()]
+    for x, v1 in enumerate(pxs):
+        if x > len(pxs) / 2:
+            continue
+
+        for y, v2 in enumerate(v1):
+            if y > len(v1) / 2:
+                continue
+
+            if y > 3 and math.fabs((v1[y-3] + v1[y-2]) - (v1[y-1] + v1[y])) > 200:
+                #print("X: ", y, " Y: ", x, ", diff: ", math.fabs((v1[y-3] + v1[y-2]) - (v1[y-1] + v1[y])))
+                res[0] = (y, x)
+                break
+
+        if len(res[0]) > 0:
+            break
+
+    for x, v1 in enumerate(reversed(pxs)):
+        if x > len(pxs) / 2:
+            continue
+
+        v3 = list(reversed(v1))
+        for y, v2 in enumerate(v3):
+            #if y > len(v3) / 2:
+            #    continue
+
+            if y > 3 and math.fabs((v3[y-3] + v3[y-2]) - (v3[y-1] + v3[y])) > 200:
+                #print("X: ", y, " Y: ", x, ", len(v3): ", len(v3), ", len(pxs): ", len(pxs))
+                res[1] = (len(v3) - y, len(pxs) - x)
+                break
+
+        if len(res[1]) > 0:
+            break
+
+    print(res)
+    if len(res[1]) > 0:
+        img = scipy.misc.toimage(pxs)
+        bbox = (res[0][0], res[0][1], res[1][0], res[1][1])
+        img2 = img.crop(bbox)
+        img2.save(filename + ".cropped.png", "PNG")
+
 def normalize(arr):
     rng = arr.max()-arr.min()
     amin = arr.min()
@@ -87,24 +158,30 @@ def normalize(arr):
 
 @app.route('/spots')
 def hello_world():
-    return 'Parkinson says: Hello!'
-
-@app.route('/camera/init', methods=['POST'])
-def camera_init():
-    fp = open('img/empty.jpg', 'w')
-    fp.write(base64.b64decode(request.data))
-    fp.close()
-
-    return ''
+    try:
+        data = main()
+        return Response(response=json.dumps(data),
+                        status=200,
+                        mimetype="application/json")
+    except:
+        return Response(response=json.dumps(list()),
+                        status=200,
+                        mimetype="application/json")
 
 @app.route('/camera', methods=['POST'])
 def camera():
-    fp = open('img/camera.jpg', 'w')
-    fp.write(base64.b64decode(request.data))
-    fp.close()
+    global first_time
 
+    filename = "img/empty.png" if first_time else "img/camera.png"
+    data = base64.b64decode(request.data)
+    #print(len(data))
+    with open(filename, "wb") as fo:
+        fo.write(data)
+
+    find_corners(filename)
+
+    first_time = False
     return ''
 
-#main()
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

@@ -1,7 +1,8 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
- */
+* Sample React Native App
+* https://github.com/facebook/react-native
+*/
+
 
 import React, { Component } from 'react';
 import {
@@ -10,13 +11,15 @@ import {
   Text,
   View
 } from 'react-native';
+var MapGL = require('react-map-gl');
+
 
 class AwesomeProject extends Component {
   render() {
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
-          Welcome to React Native! nice :)
+          Welcome to React Native! nice
         </Text>
         <Text style={styles.instructions}>
           To get started, edit index.android.js
@@ -24,6 +27,12 @@ class AwesomeProject extends Component {
         <Text style={styles.instructions}>
           Shake or press menu button for dev menu
         </Text>
+        <MapGL width={400} height={400} latitude={37.7577} longitude={-122.4376}
+          zoom={8} onChangeViewport={(viewport) => {
+            var {latitude, longitude, zoom} = viewport;
+            // Optionally call `setState` and use the state to update the map.
+          }}
+          />
       </View>
     );
   }

@@ -87,11 +87,19 @@ def normalize(arr):
 
 @app.route('/spots')
 def hello_world():
-    return 'Hello World!'
+    return 'Parkinson says: Hello!'
 
-@app.route('/upload', methods=['POST'])
+@app.route('/camera/init', methods=['POST'])
 def upload():
-    fp = open('img/uploaded.jpg', 'w')
+    fp = open('img/empty.jpg', 'w')
+    fp.write(base64.b64decode(request.data))
+    fp.close()
+
+    return ''
+
+@app.route('/camera', methods=['POST'])
+def upload():
+    fp = open('img/camera.jpg', 'w')
     fp.write(base64.b64decode(request.data))
     fp.close()
 

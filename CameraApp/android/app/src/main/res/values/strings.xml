@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">cameraServer</string>
+
+    <string name="app_name">CameraApp</string>
 </resources>

@@ -1,14 +1,12 @@
 {
-  "name": "camera",
-  "version": "1.0.0",
-  "description": "camera",
-  "main": "index.js",
+  "name": "cameraServer",
+  "version": "0.0.1",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node node_modules/react-native/local-cli/cli.js start"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "react-native-camera": "git+https://github.com/lwansbrough/react-native-camera.git"
+    "react": "^0.14.8",
+    "react-native": "^0.25.1"
   }
 }

@@ -22,7 +22,8 @@ class CameraApp extends Component {
           this.camera = cam;
         }}
         style={styles.preview}
-        aspect={Camera.constants.Aspect.fill}>
+        aspect={Camera.constants.Aspect.fill}
+		captureTarget={Camera.constants.CaptureTarget.memory}>
         </Camera>
         <Text style={styles.capture} onPress={this.takePicture.bind(this)}>[CAPTURE]</Text>
       </View>
@@ -31,9 +32,17 @@ class CameraApp extends Component {
 
   takePicture() {
     this.camera.capture()
-      .then((data) => console.log(data))
+      .then((data) => uploadFile(data))
       .catch(err => console.error(err));
   }
+}
+function uploadFile(data) {
+	var formData = new FormData();
+	formData.append('data', data['data']);
+	
+	var xhr = new XMLHttpRequest();
+	xhr.open('POST', "http://localhost:5000/upload");
+	xhr.send(formData);
 }
 
 const styles = StyleSheet.create({

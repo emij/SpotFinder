@@ -14,35 +14,47 @@ import {
 } from 'react-native';
 import Camera from 'react-native-camera';
 
+var interval;
+
 class CameraApp extends Component {
-  componentDidMount() {
-	  var interval = setInterval(() => {this.takePicture()}, 5000);
-  }
-  
   render() {
-	console.log("Render");
     return (
       <View style={styles.container}>
+	    <Text style={styles.capture} onPress={this.stopSending.bind(this)}>[STOP]</Text>
         <Camera ref={(cam) => {
           this.camera = cam;
         }}
         style={styles.preview}
         aspect={Camera.constants.Aspect.fill}
+		keepAwake={true}
+		captureQuality={Camera.constants.CaptureQuality.low}
 		captureTarget={Camera.constants.CaptureTarget.memory}>
         </Camera>
+		<Text style={styles.capture} onPress={this.takeInitPicture.bind(this)}>[START]</Text>
       </View>
     );
   }
 
   takePicture() {
     this.camera.capture()
-      .then((data) => uploadFile(data))
+      .then((data) => uploadFile(data, "camera"))
       .catch(err => console.error(err));
+  }
+  
+  takeInitPicture() {
+    this.camera.capture()
+      .then((data) => uploadFile(data, "camera/init"))
+      .catch(err => console.error(err));
+	interval = setInterval(() => {this.takePicture()}, 5000);
+  }
+  
+  stopSending() {
+	  clearInterval(interval);
   }
 }
 
-function uploadFile(data) {
-	fetch("https://b5f3edbe.ngrok.io/camera", {
+function uploadFile(data, prefix) {
+	fetch("https://7e358f52.ngrok.io/" + prefix, {
 	  method: 'POST',
 	  headers: {
 		'Accept': 'application/json',
@@ -55,6 +67,7 @@ function uploadFile(data) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+	backgroundColor: '#000',
   },
   preview: {
     flex: 1,
@@ -69,7 +82,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     color: '#000',
     padding: 10,
-    margin: 40
+    margin: 20
   }
 });
 

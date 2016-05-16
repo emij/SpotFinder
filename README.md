@@ -1,5 +1,5 @@
 # SpotFinder
-##This is a app developed gbgstartuphack developed on 8h do not expect great quality code here##
+##This is a app developed on gbgstartuphack on 8h do not expect great quality code here##
 
 ###Run on andriod###
 * install adb
